@@ -75,7 +75,7 @@ class TranslationCheckTask extends DefaultTask {
 
         for (File langFile : langDir.listFiles()) {
             if (langFile.getName().equals(TranslationCheckExtension.templateFile)) {
-                logger.quiet('Found template file: ' + langFile)
+                logger.info('Found template file: ' + langFile)
                 templateFile = new TranslationFileTemplate()
                 templateFile.parseFile(langFile)
             } else if (!langFile.isDirectory()) {
@@ -88,7 +88,7 @@ class TranslationCheckTask extends DefaultTask {
         }
 
         for (File f : langFiles) {
-            logger.quiet('Processing lang file: ' + f)
+            logger.info('Processing lang file: ' + f)
             templateFile.processTranslation(f, f)
         }
     }
