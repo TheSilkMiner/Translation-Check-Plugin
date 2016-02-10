@@ -10,6 +10,12 @@ To use this task you need to make it visible to script and then configure it wit
 
 ```gradle
 buildscript {
+  repositories {
+    maven {
+	  name 'OpenMods Third Party'
+	  url 'http://repo.openmods.info/artifactory/simple/thirdparty'
+	}
+  }
   dependencies {
     classpath group: 'net.thesilkminer.gradle.translationchecker',
               name: 'TranslationChecker',
