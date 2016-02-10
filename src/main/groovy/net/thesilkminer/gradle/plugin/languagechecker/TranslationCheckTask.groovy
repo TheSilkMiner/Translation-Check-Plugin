@@ -37,7 +37,8 @@ class TranslationCheckTask extends DefaultTask {
         if (enUs == null || langFiles.isEmpty()) {
 
             logger.error('Either the "en_US.lang" file does not exist or no other files are present.')
-            throw new RuntimeException('Not all required files have been found')
+            logger.error('Aborting process so that no files are hurt in the process')
+            return;
         }
 
         final Map<String, String> map = fillMap(enUs)
