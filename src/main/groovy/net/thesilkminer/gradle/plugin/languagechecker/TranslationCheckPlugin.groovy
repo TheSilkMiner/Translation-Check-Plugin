@@ -8,6 +8,5 @@ class TranslationCheckPlugin implements Plugin<Project> {
     void apply(final Project project) {
         project.extensions.create('translation', TranslationCheckExtension)
         project.tasks.create('translationCheck', TranslationCheckTask)
-        project.tasks['jar'].dependsOn('translationCheck')
     }
 }
