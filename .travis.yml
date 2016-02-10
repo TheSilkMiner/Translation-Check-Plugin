@@ -1,0 +1,11 @@
+language: groovy
+sudo: false
+notifications:
+  email:
+    recipients:
+      - sir.karati@outlook.com
+    on_success: change
+    on_failure: always
+  slack:
+    on_success: always
+    on_failure: always

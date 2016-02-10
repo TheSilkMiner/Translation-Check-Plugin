@@ -1,11 +1,24 @@
-.gradle
+# Package Files
+*.jar
+
+# Gradle
+.gradle/
 build/
+run/
+bin/
 
-# Ignore Gradle GUI config
-gradle-app.setting
+# Eclipse
+.classpath
+.project
+.settings/
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# IntelliJ IDEA
+*.iml
+*.iws
+*.ipr
+.idea/
 
-# Cache of project
-.gradletasknamecache
+# OS Garbage
+.DS_Store
+Thumbs.db
+desktop.ini
