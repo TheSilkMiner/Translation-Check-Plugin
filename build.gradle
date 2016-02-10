@@ -15,8 +15,8 @@ plugins {
 	id 'java-gradle-plugin'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 version = "1.0"
 group = "net.thesilkminer.gradle.languagechecker"
@@ -31,47 +31,7 @@ dependencies {
 	compile localGroovy()
 }
 
-sourceSets {
-	main {
-		java {
-			srcDir "src/main/java"
-		}
-		groovy {
-			srcDir "src/main/groovy"
-		}
-		resources {
-			srcDir "src/main/resources"
-		}
-	}
-	test {
-		java {
-			srcDir "src/test/java"
-		}
-		groovy {
-			srcDir "src/test/groovy"
-		}
-		resources {
-			srcDir "src/test/resources"
-		}
-	}
-}
-
-jar {
-	manifest {
-		attributes (
-			"Main-Class":""
-		)
-	}
-}
-
 task wrapper (type: Wrapper) {
 	gradleVersion = "2.11"
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri('E:/.gradle'))
-        }
-    }
-}
