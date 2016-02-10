@@ -2,6 +2,7 @@ package net.thesilkminer.gradle.plugin.languagechecker
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Input
 
 import java.util.regex.Pattern
 
@@ -62,10 +63,14 @@ class TranslationFileTemplate {
 
 class TranslationCheckTask extends DefaultTask {
 
+    @Input
+    File langDir
+
+    @Input
+    String templateFileName = "en_US.lang"
+
     @TaskAction
     void run() {
-        def langDir = TranslationCheckExtension.langDir as File
-
         if (langDir == null || !langDir.isDirectory()) {
             throw new RuntimeException("Path '${langDir}' is not a directory")
         }
@@ -74,7 +79,7 @@ class TranslationCheckTask extends DefaultTask {
         final List<File> langFiles = []
 
         for (File langFile : langDir.listFiles()) {
-            if (langFile.getName().equals(TranslationCheckExtension.templateFile)) {
+            if (langFile.getName().equals(templateFileName)) {
                 logger.info('Found template file: ' + langFile)
                 templateFile = new TranslationFileTemplate()
                 templateFile.parseFile(langFile)
