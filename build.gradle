@@ -19,8 +19,8 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 version = "1.0"
-group = "net.thesilkminer.gradle.languagechecker"
-archivesBaseName = "LanguageChecker"
+group = "net.thesilkminer.gradle.translationchecker"
+archivesBaseName = "TranslationChecker"
 
 repositories {
 	mavenCentral()
