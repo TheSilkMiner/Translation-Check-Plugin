@@ -4,16 +4,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 
-import java.util.regex.Pattern
-
 interface LineTemplate {
     String fill(Map<String, String> translations)
 }
 
 class TranslationFileTemplate {
-    static Pattern ALL_WHITESPACE = Pattern.compile('^\\s*$')
+    static ALL_WHITESPACE = ~/^\s*$/
 
-    static def ESCAPES = [
+    static Map<Character, Character> ESCAPES = [
         '\n' : '\\n',
         '\r' : '\\r',
         '\t' : '\\t',
@@ -28,13 +26,13 @@ class TranslationFileTemplate {
 
     def parseFile(File file) {
         file.eachLine('UTF-8') {
-            templates.add(parseLine(it))
+            templates << parseLine(it)
         }
     }
 
-    def parseLine(String line) {
-        if (line.startsWith("#") || line.startsWith("!") || ALL_WHITESPACE.matcher(line).matches()) {
-            return { line } as LineTemplate;
+    LineTemplate parseLine(String line) {
+        if (line.startsWith("#") || line.startsWith("!") || line ==~ ALL_WHITESPACE) {
+            return { line };
         } else {
             def split = line.indexOf("=")
             assert split != -1
@@ -45,7 +43,7 @@ class TranslationFileTemplate {
                 translation
                     ? "${key}=${escape(translation)}" as String
                     : "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
-            } as LineTemplate
+            }
         }
     }
 
