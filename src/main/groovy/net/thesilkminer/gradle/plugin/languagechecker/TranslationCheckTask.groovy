@@ -5,6 +5,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 import groovy.transform.CompileStatic
 
+import joptsimple.*;
+
 @CompileStatic
 interface LineTemplate {
     String fill(Map<String, String> translations)
@@ -74,26 +76,16 @@ class TranslationFileTemplate {
 }
 
 @CompileStatic
-class TranslationCheckTask extends DefaultTask {
+trait TranslationCheckBatchJob {
+    abstract def log(String log)
 
-    @Input
-    File langDir
-
-    @Input
-    String templateFileName = "en_US.lang"
-
-    @TaskAction
-    void run() {
-        if (langDir == null || !langDir.isDirectory()) {
-            throw new RuntimeException("Path '${langDir}' is not a directory")
-        }
-
+    def batchTranslationCheck(File baseDir, String templateFileName) {
         def templateFile
         final List<File> langFiles = []
 
-        for (File langFile : langDir.listFiles()) {
+        for (File langFile : baseDir.listFiles()) {
             if (langFile.getName().equals(templateFileName)) {
-                logger.info('Found template file: ' + langFile)
+              log('Found template file: ' + langFile)
                 templateFile = new TranslationFileTemplate()
                 templateFile.parseFile(langFile)
             } else if (!langFile.isDirectory()) {
@@ -106,8 +98,104 @@ class TranslationCheckTask extends DefaultTask {
         }
 
         for (File f : langFiles) {
-            logger.info('Processing lang file: ' + f)
+            log('Processing lang file: ' + f)
             templateFile.processTranslation(f, f)
         }
+    }
+}
+
+@CompileStatic
+class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJob {
+
+    @Input
+    File langDir
+
+    @Input
+    String templateFileName = "en_US.lang"
+
+    def log(String log) {
+        logger.info(log)
+    }
+
+    @TaskAction
+    void run() {
+        if (langDir == null || !langDir.isDirectory())
+            throw new RuntimeException("Path '${langDir}' is not a directory")
+
+        batchTranslationCheck(langDir, templateFileName)
+    }
+}
+
+@CompileStatic
+class Standalone implements TranslationCheckBatchJob {
+    final OptionParser parser
+    final OptionSpec<File> baseDirs;
+    final OptionSpec<String> template;
+    final OptionSpec<String> singleMode;
+    final OptionSpec<String> output;
+    final OptionSpec<Void> help;
+
+    Standalone() {
+        parser = new OptionParser();
+        baseDirs = parser.nonOptions("dir").ofType(File.class)
+        template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
+        singleMode = parser.accepts("single").withRequiredArg()
+        output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
+        help = parser.accepts("h").forHelp()
+    }
+
+    def log(String log) {
+        println log
+    }
+
+    def execute(String... args) {
+        OptionSet options = parser.parse(args)
+
+        if (options.has(help)) {
+            parser.printHelpOn System.out
+            return
+        }
+
+        boolean isSingleMode = options.has(singleMode);
+        for (File baseDir : options.valuesOf(baseDirs)) {
+            println "Starting " + baseDir.getAbsolutePath()
+            if (isSingleMode) {
+                singleFileTranslationCheck(baseDir, options)
+            } else {
+                batchTranslationCheck(baseDir, options.valueOf(template))
+            }
+        }
+    }
+
+    def singleFileTranslationCheck(File baseDir, OptionSet options) {
+        String templateFileName = options.valueOf(template);
+        File templateFile = new File(baseDir, templateFileName)
+        if (!templateFile.isFile())
+            throw new RuntimeException("Template file ${templateFile.getAbsolutePath()} not found")
+
+        String inputFileName = options.valueOf(singleMode)
+        File inputFile = new File(baseDir, inputFileName)
+
+        if (!inputFile.isFile())
+            throw new RuntimeException("Input file ${inputFile.getAbsolutePath()} not found")
+
+        File outputFile
+        if (options.has(output)) {
+            String outputFileName = options.valueOf(output)
+            outputFile = new File(baseDir, outputFileName)
+        } else {
+            outputFile = inputFile
+        }
+
+        println "Loading template ${templateFile.getAbsolutePath()}"
+        def templateProcessor = new TranslationFileTemplate()
+        templateProcessor.parseFile(templateFile)
+
+        println "Processing ${inputFile.getAbsolutePath()} to ${outputFile.getAbsolutePath()}"
+        templateProcessor.processTranslation(inputFile, outputFile)
+    }
+
+    static void main(String... args) {
+        new Standalone().execute(args)
     }
 }
