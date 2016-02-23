@@ -28,9 +28,11 @@ class TranslationFileTemplate {
     private List<LineTemplate> templates = []
 
     def parseFile(File file) {
-        file.eachLine('UTF-8') {
-            templates << parseLine(it)
-        }
+        file.eachLine('UTF-8') { templates << parseLine(it) }
+    }
+
+    def parseFile(Reader file) {
+        file.eachLine { templates << parseLine(it) }
     }
 
     LineTemplate parseLine(String line) {
@@ -50,16 +52,24 @@ class TranslationFileTemplate {
         }
     }
 
-    def processTranslation(File inFile, File outFile) {
-        def translations = inFile.withReader('UTF-8') {
-            def p = new Properties()
-            p.load(it)
-            return (Map<String, String>)p
-        }
+    Map<String, String> parseProperties(Reader reader) {
+        def p = new Properties()
+        p.load(reader)
+        p
+    }
 
-        outFile.withWriter('UTF-8') { output ->
-            templates.each { output.writeLine(it.fill(translations)) }
-        }
+    def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
+        templates.each { output.writeLine(it.fill(translations)) }
+    }
+
+    def processTranslation(File inFile, File outFile) {
+        def translations = inFile.withReader('UTF-8') { parseProperties(it) }
+        outFile.withWriter('UTF-8') { fillFromTemplate(it, translations) }
+    }
+
+    def processTranslation(Reader reader, BufferedWriter writer) {
+        def translations = reader.withCloseable { parseProperties(it) }
+        writer.withCloseable { fillFromTemplate(it, translations) }
     }
 }
 
