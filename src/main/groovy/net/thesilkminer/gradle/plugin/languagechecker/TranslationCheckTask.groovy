@@ -3,15 +3,18 @@ package net.thesilkminer.gradle.plugin.languagechecker
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
+import groovy.transform.CompileStatic
 
+@CompileStatic
 interface LineTemplate {
     String fill(Map<String, String> translations)
 }
 
+@CompileStatic
 class TranslationFileTemplate {
     static ALL_WHITESPACE = ~/^\s*$/
 
-    static Map<Character, Character> ESCAPES = [
+    static Map<String, String> ESCAPES = [
         '\n' : '\\n',
         '\r' : '\\r',
         '\t' : '\\t',
@@ -32,25 +35,26 @@ class TranslationFileTemplate {
 
     LineTemplate parseLine(String line) {
         if (line.startsWith("#") || line.startsWith("!") || line ==~ ALL_WHITESPACE) {
-            return { line };
+            return { line } as LineTemplate;
         } else {
             def split = line.indexOf("=")
             assert split != -1
             def key = line.substring(0, split).trim()
             def original_translation = escape(line.substring(split + 1))
-            return { translations ->
-                def translation = translations[key]
+            return {  translations ->
+                String translation = translations[key]
                 translation
                     ? "${key}=${escape(translation)}" as String
                     : "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
-            }
+            } as LineTemplate
         }
     }
 
     def processTranslation(File inFile, File outFile) {
-        def translations = new Properties()
-        inFile.withReader('UTF-8') {
-            translations.load(it);
+        def translations = inFile.withReader('UTF-8') {
+            def p = new Properties()
+            p.load(it)
+            return (Map<String, String>)p
         }
 
         outFile.withWriter('UTF-8') { output ->
@@ -59,6 +63,7 @@ class TranslationFileTemplate {
     }
 }
 
+@CompileStatic
 class TranslationCheckTask extends DefaultTask {
 
     @Input
@@ -87,7 +92,7 @@ class TranslationCheckTask extends DefaultTask {
         }
 
         if (templateFile == null) {
-            throw new RuntimeException("Template file ${TranslationCheckExtension.baseLanguage} not found")
+            throw new RuntimeException("Template file ${templateFileName} not found")
         }
 
         for (File f : langFiles) {
