@@ -41,11 +41,29 @@ class SubstitutionTest {
     }
 
     @Test
+    void testUnicodeValue() {
+        testSubstitution {
+            template = "k=v"
+            translation = "k=\u007Av"
+            expected = "k=\u007Av\n"
+        }
+    }
+
+    @Test
     void testMultipleSubstitutions() {
         testSubstitution {
             template = "k1=v1\nk2=v2"
             translation = "k2=t2\nk1=t1"
             expected = "k1=t1\nk2=t2\n"
+        }
+    }
+
+    @Test
+    void testMissingTranslation() {
+         testSubstitution {
+            template = "k1=v1\nk2=v2"
+            translation = "k2=t2"
+            expected = "#k1=v1 ## NEEDS TRANSLATION ##\nk2=t2\n"
         }
     }
 
