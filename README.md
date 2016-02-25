@@ -33,4 +33,4 @@ To execute, just call:
 ```bash
 ./gradlew translationCheck
 ```
-or something similar, depending on operating system.
+in Terminal or PowerShell

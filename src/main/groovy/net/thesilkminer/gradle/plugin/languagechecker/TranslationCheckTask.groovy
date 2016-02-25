@@ -11,14 +11,14 @@ interface LineTemplate {
 class TranslationFileTemplate {
     static ALL_WHITESPACE = ~/^\s*$/
 
-    static Map<Character, Character> ESCAPES = [
+    static Map<String, String> ESCAPES = [
         '\n' : '\\n',
         '\r' : '\\r',
         '\t' : '\\t',
         '\f' : '\\f'
     ]
 
-    String escape(String value) {
+    static String escape(String value) {
         value.collectReplacements { ESCAPES[it.toString()] }
     }
 
@@ -30,7 +30,7 @@ class TranslationFileTemplate {
         }
     }
 
-    LineTemplate parseLine(String line) {
+   static  LineTemplate parseLine(String line) {
         if (line.startsWith("#") || line.startsWith("!") || line ==~ ALL_WHITESPACE) {
             return { line };
         } else {
@@ -40,9 +40,9 @@ class TranslationFileTemplate {
             def original_translation = escape(line.substring(split + 1))
             return { translations ->
                 def translation = translations[key]
-                translation
-                    ? "${key}=${escape(translation)}" as String
-                    : "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
+                translation ?
+                        "${key}=${escape(translation)}" as String :
+                        "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
             }
         }
     }
@@ -54,11 +54,13 @@ class TranslationFileTemplate {
         }
 
         outFile.withWriter('UTF-8') { output ->
-            templates.each { output.writeLine(it.fill(translations)) }
+            templates.each { output.writeLine(it.fill(translations as Map<String, String>)) }
         }
     }
 }
 
+@SuppressWarnings("all")
+// Why doesn't "unused" work?
 class TranslationCheckTask extends DefaultTask {
 
     @Input
