@@ -7,7 +7,7 @@
 
 ## 1.1
 
-* java.lang.NullPointerException
+* TheSilkMiner: Class split
 
 ## 1.0
 
