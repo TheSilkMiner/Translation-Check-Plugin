@@ -12,11 +12,23 @@ interface LineTemplate {
     String fill(Map<String, String> translations)
 }
 
+class TemplateParseState {
+    Set<String> keys = new HashSet<String>()
+
+    Set<String> allKeys(String currentKey) {
+        keys.add(currentKey)
+        def result = keys
+        keys = new HashSet<String>()
+        return result
+    }
+}
+
 @CompileStatic
 class TranslationFileTemplate {
-    static ALL_WHITESPACE = ~/^\s*$/
 
-    static Map<String, String> ESCAPES = [
+    static final String PREFIX_ALIAS = "#@alias "
+    static final ALL_WHITESPACE = ~/^\s*$/
+    static final Map<String, String> ESCAPES = [
         '\n' : '\\n',
         '\r' : '\\r',
         '\t' : '\\t',
@@ -30,27 +42,37 @@ class TranslationFileTemplate {
     private List<LineTemplate> templates = []
 
     def parseFile(File file) {
-        file.eachLine('UTF-8') { templates << parseLine(it) }
+        def state = new TemplateParseState()
+        file.eachLine('UTF-8') { templates += parseLine(state, it) }
     }
 
     def parseFile(Reader file) {
-        file.eachLine { templates << parseLine(it) }
+        def state = new TemplateParseState()
+        file.eachLine { templates += parseLine(state, it) }
     }
 
-    LineTemplate parseLine(String line) {
+    List<LineTemplate> parseLine(TemplateParseState state, String line) {
         if (line.startsWith("#") || line.startsWith("!") || line ==~ ALL_WHITESPACE) {
-            return { line } as LineTemplate;
+            if (line.startsWith(PREFIX_ALIAS)) {
+                def key = line.substring(PREFIX_ALIAS.size())
+                state.keys.add(key)
+                return []
+            }
+            return [{ line } as LineTemplate];
         } else {
             def split = line.indexOf("=")
             assert split != -1
-            def key = line.substring(0, split).trim()
+            def current_key = line.substring(0, split).trim()
+            def keys = state.allKeys(current_key)
             def original_translation = escape(line.substring(split + 1))
-            return {  translations ->
-                String translation = translations[key]
-                translation
-                    ? "${key}=${escape(translation)}" as String
-                    : "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
-            } as LineTemplate
+            return [{  translations ->
+                for (key in keys) {
+                    String translation = translations[key]
+                    if (translation) return "${current_key}=${escape(translation)}" as String
+                }
+
+                return "#${current_key}=${original_translation} ## NEEDS TRANSLATION ##" as String
+            } as LineTemplate]
         }
     }
 

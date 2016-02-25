@@ -75,4 +75,13 @@ class SubstitutionTest {
             expected = "#test\n\nk1=t1\n \n#@ \nk2=t2\n"
         }
     }
+
+    @Test
+    void testAliases() {
+         testSubstitution {
+            template = "#@alias a\nk=v"
+            translation = "a=t"
+            expected = "k=t\n"
+        }
+    }
 }
