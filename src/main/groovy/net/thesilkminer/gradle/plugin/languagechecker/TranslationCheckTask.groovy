@@ -5,7 +5,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 import groovy.transform.*
 
-import joptsimple.*;
+import joptsimple.*
 
 @CompileStatic
 interface LineTemplate {
@@ -91,7 +91,7 @@ class TranslationFileTemplate {
                 state.keys.add(key)
                 return []
             }
-            return [{ line } as LineTemplate];
+            return [{ line } as LineTemplate]
         } else {
             def split = line.indexOf("=")
             assert split != -1
@@ -200,14 +200,14 @@ class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJ
 @CompileStatic
 class Standalone implements TranslationCheckBatchJob {
     final OptionParser parser
-    final OptionSpec<File> baseDirs;
-    final OptionSpec<String> template;
-    final OptionSpec<String> singleMode;
-    final OptionSpec<String> output;
-    final OptionSpec<Void> help;
+    final OptionSpec<File> baseDirs
+    final OptionSpec<String> template
+    final OptionSpec<String> singleMode
+    final OptionSpec<String> output
+    final OptionSpec<Void> help
 
     Standalone() {
-        parser = new OptionParser();
+        parser = new OptionParser()
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
         singleMode = parser.accepts("single").withRequiredArg()
@@ -227,7 +227,7 @@ class Standalone implements TranslationCheckBatchJob {
             return
         }
 
-        boolean isSingleMode = options.has(singleMode);
+        boolean isSingleMode = options.has(singleMode)
         for (File baseDir : options.valuesOf(baseDirs)) {
             println "Starting " + baseDir.getAbsolutePath()
             if (isSingleMode) {
@@ -239,7 +239,7 @@ class Standalone implements TranslationCheckBatchJob {
     }
 
     def singleFileTranslationCheck(File baseDir, OptionSet options) {
-        String templateFileName = options.valueOf(template);
+        String templateFileName = options.valueOf(template)
         File templateFile = new File(baseDir, templateFileName)
         if (!templateFile.isFile())
             throw new RuntimeException("Template file ${templateFile.getAbsolutePath()} not found")

@@ -4,19 +4,16 @@ import org.junit.Test
 
 class SubstitutionTest {
 
-
-
-
     static class Params{
-        String template;
-        String translation;
-        String expected;
+        String template
+        String translation
+        String expected
         List<Validator> validators = []
         List<ValidationMessage> messages = []
     }
 
     def testSubstitution(Closure setup) {
-        def params = new Params();
+        def params = new Params()
         //setup.resolveStrategy = Closure.DELEGATE_FIRST
         setup.delegate = params
         setup()
