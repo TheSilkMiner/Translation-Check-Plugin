@@ -7,6 +7,7 @@
 
 ## 1.1
 
+* TheSilkMiner: Add `modId` option
 * TheSilkMiner: Class split
 
 ## 1.0

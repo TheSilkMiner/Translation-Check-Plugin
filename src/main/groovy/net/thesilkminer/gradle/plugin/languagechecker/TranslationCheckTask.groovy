@@ -9,13 +9,30 @@ import org.gradle.api.tasks.Input
 class TranslationCheckTask extends DefaultTask {
 
     @Input
+    String modId
+
+    @Input
     File langDir
 
     @Input
-    String templateFileName = "en_US.lang"
+    String templateFileName = 'en_US.lang'
 
     @TaskAction
     void run() {
+
+        if (langDir == null && (modId == null || modId.isEmpty())) {
+            throw new RuntimeException('You must specify either a directory or a mod ID')
+        }
+
+        if (langDir == null) {
+            // Attempting to resolve language directory from mod ID.
+            langDir = new File("src/main/resources/assets/${modid}/lang")
+
+            if (langDir.exists() && !langDir.isDirectory()) {
+                langDir = null
+            }
+        }
+
         if (langDir == null || !langDir.isDirectory()) {
             throw new RuntimeException("Path '${langDir}' is not a directory")
         }
