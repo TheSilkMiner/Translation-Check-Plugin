@@ -11,6 +11,8 @@ class SubstitutionTest {
         String template;
         String translation;
         String expected;
+        List<Validator> validators = []
+        List<ValidationMessage> messages = []
     }
 
     def testSubstitution(Closure setup) {
@@ -20,7 +22,8 @@ class SubstitutionTest {
         setup()
 
         TranslationFileTemplate tft = new TranslationFileTemplate()
-        tft.parseFile(new StringReader(params.template))
+        tft.validators.addAll(params.validators)
+        tft.parseTemplate(new StringReader(params.template))
 
         def outputBuffer = new StringWriter()
         tft.processTranslation(new StringReader(params.translation), new BufferedWriter(outputBuffer))
@@ -29,6 +32,7 @@ class SubstitutionTest {
         def expected = params.expected
 
         assert output == expected
+        assert params.messages == tft.validationMessages
     }
 
     @Test
@@ -82,6 +86,40 @@ class SubstitutionTest {
             template = "#@alias a\nk=v"
             translation = "a=t"
             expected = "k=t\n"
+        }
+    }
+
+    @Test
+    void testValidator() {
+         testSubstitution {
+            template = "#@alias a\nk=v"
+            translation = "k=t"
+            expected = "k=t\n"
+
+            validators = [
+                new Validator() {
+                     def validateTemplate(Set<String> keys, String value, ValidationMessageAppender addMessage) {
+                        addMessage(0, "template: " + keys.sort() + " = " + value)
+                     }
+
+                     def validateTranslation(String key, String value, ValidationMessageAppender addMessage) {
+                        addMessage(0, "translation: " + key + " = " + value)
+                     }
+                }
+            ]
+
+            messages = [
+                new ValidationMessage(source : "<stream>",
+                                      key : "k",
+                                      column : 0,
+                                      message : "template: [a, k] = v"
+                                      ),
+                new ValidationMessage(source : "<stream>",
+                                      key : "k",
+                                      column : 0,
+                                      message : "translation: k = t"
+                                     ),
+            ]
         }
     }
 }

@@ -3,7 +3,7 @@ package net.thesilkminer.gradle.plugin.languagechecker
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
-import groovy.transform.CompileStatic
+import groovy.transform.*
 
 import joptsimple.*;
 
@@ -12,7 +12,31 @@ interface LineTemplate {
     String fill(Map<String, String> translations)
 }
 
+@Canonical
+@CompileStatic
+class ValidationMessage {
+    String source
+    String key
+    int column
+    String message
+}
+
+@CompileStatic
+interface ValidationMessageAppender {
+   def call(int column, String message)
+}
+
+@CompileStatic
+interface Validator {
+    def validateTemplate(Set<String> keys, String value, ValidationMessageAppender addMessage)
+    def validateTranslation(String key, String value, ValidationMessageAppender addMessage)
+}
+
+@CompileStatic
 class TemplateParseState {
+    String source
+    List<ValidationMessage> messages
+
     Set<String> keys = new HashSet<String>()
 
     Set<String> allKeys(String currentKey) {
@@ -20,6 +44,12 @@ class TemplateParseState {
         def result = keys
         keys = new HashSet<String>()
         return result
+    }
+
+    ValidationMessageAppender createMessageAppender(String key) {
+        return { int column, String message ->
+            messages << new ValidationMessage(source : source, key : key, column : column, message : message)
+        } as ValidationMessageAppender
     }
 }
 
@@ -39,15 +69,18 @@ class TranslationFileTemplate {
         value.collectReplacements { ESCAPES[it.toString()] }
     }
 
+    public final List<Validator> validators = []
+    public final List<ValidationMessage> validationMessages = []
+
     private List<LineTemplate> templates = []
 
-    def parseFile(File file) {
-        def state = new TemplateParseState()
+    def parseTemplate(File file) {
+        def state = new TemplateParseState(source : file.getAbsolutePath(), messages : validationMessages)
         file.eachLine('UTF-8') { templates += parseLine(state, it) }
     }
 
-    def parseFile(Reader file) {
-        def state = new TemplateParseState()
+    def parseTemplate(Reader file) {
+        def state = new TemplateParseState(source : "<stream>", messages : validationMessages)
         file.eachLine { templates += parseLine(state, it) }
     }
 
@@ -65,7 +98,11 @@ class TranslationFileTemplate {
             def current_key = line.substring(0, split).trim()
             def keys = state.allKeys(current_key)
             def original_translation = escape(line.substring(split + 1))
-            return [{  translations ->
+
+            def messageAppender = state.createMessageAppender(current_key)
+            validators*.validateTemplate(keys, original_translation, messageAppender)
+
+            return [{ translations ->
                 for (key in keys) {
                     String translation = translations[key]
                     if (translation) return "${current_key}=${escape(translation)}" as String
@@ -82,17 +119,29 @@ class TranslationFileTemplate {
         p
     }
 
+    def validateTranslation(Map<String, String> translation, String source) {
+        translation.each { key, value ->
+            ValidationMessageAppender appender = { int column, String message ->
+                validationMessages << new ValidationMessage(source : source, key : key, column : column, message : message)
+            }
+
+            validators*.validateTranslation(key, value, appender)
+        }
+    }
+
     def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
         templates.each { output.writeLine(it.fill(translations)) }
     }
 
     def processTranslation(File inFile, File outFile) {
         def translations = inFile.withReader('UTF-8') { parseProperties(it) }
+        validateTranslation(translations, outFile.getAbsolutePath())
         outFile.withWriter('UTF-8') { fillFromTemplate(it, translations) }
     }
 
     def processTranslation(Reader reader, BufferedWriter writer) {
         def translations = reader.withCloseable { parseProperties(it) }
+        validateTranslation(translations, "<stream>")
         writer.withCloseable { fillFromTemplate(it, translations) }
     }
 }
@@ -109,7 +158,7 @@ trait TranslationCheckBatchJob {
             if (langFile.getName().equals(templateFileName)) {
               log('Found template file: ' + langFile)
                 templateFile = new TranslationFileTemplate()
-                templateFile.parseFile(langFile)
+                templateFile.parseTemplate(langFile)
             } else if (!langFile.isDirectory()) {
                 langFiles.add(langFile)
             }
@@ -211,7 +260,7 @@ class Standalone implements TranslationCheckBatchJob {
 
         println "Loading template ${templateFile.getAbsolutePath()}"
         def templateProcessor = new TranslationFileTemplate()
-        templateProcessor.parseFile(templateFile)
+        templateProcessor.parseTemplate(templateFile)
 
         println "Processing ${inputFile.getAbsolutePath()} to ${outputFile.getAbsolutePath()}"
         templateProcessor.processTranslation(inputFile, outputFile)
