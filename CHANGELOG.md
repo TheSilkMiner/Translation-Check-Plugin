@@ -11,6 +11,7 @@
 * TheSilkMiner: Add `modId` option
 * TheSilkMiner: Restore plugin architecture
 * TheSilkMiner: Refactor plugin to comply to the new plugin name
+* TheSilkMiner: Add file exclusions
 
 ## 1.0
 

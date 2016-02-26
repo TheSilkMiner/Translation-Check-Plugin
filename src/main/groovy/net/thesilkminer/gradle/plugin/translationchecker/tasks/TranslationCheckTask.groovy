@@ -19,6 +19,9 @@ class TranslationCheckTask extends DefaultTask {
     @Input
     String templateFileName = 'en_US.lang'
 
+    @Input
+    List<String> excludedFileNames = []
+
     @TaskAction
     void run() {
 
@@ -28,7 +31,7 @@ class TranslationCheckTask extends DefaultTask {
 
         if (langDir == null) {
             // Attempting to resolve language directory from mod ID.
-            langDir = new File("src/main/resources/assets/${modid}/lang")
+            langDir = new File("src/main/resources/assets/${modId}/lang")
 
             if (langDir.exists() && !langDir.isDirectory()) {
                 langDir = null
@@ -39,16 +42,22 @@ class TranslationCheckTask extends DefaultTask {
             throw new RuntimeException("Path '${langDir}' is not a directory")
         }
 
+        if (excludedFileNames.contains(templateFileName)) {
+            throw new RuntimeException('Template file cannot be excluded from the check')
+        }
+
         def templateFile
         final List<File> langFiles = []
 
         for (File langFile : langDir.listFiles()) {
-            if (langFile.getName().equals(templateFileName)) {
+            if (langFile.name.equals(templateFileName)) {
                 logger.info('Found template file: ' + langFile)
                 templateFile = new TranslationFileTemplate()
                 templateFile.parseFile(langFile)
-            } else if (!langFile.isDirectory()) {
+            } else if (!langFile.isDirectory() && !excludedFileNames.contains(langFile.name)) {
                 langFiles.add(langFile)
+            } else {
+                logger.info('Skipping file or directory ' + langFile)
             }
         }
 

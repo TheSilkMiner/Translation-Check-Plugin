@@ -26,6 +26,7 @@ buildscript {
 task translationCheck(type: net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask) {
     langDir = file("src/main/resources/assets/modid/lang")
     //templateFileName = "..." // optional, set to "en_US.lang" by default
+    // See documentation for more options
 }
 ```
 
