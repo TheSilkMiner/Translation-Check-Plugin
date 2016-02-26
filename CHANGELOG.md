@@ -13,6 +13,7 @@
 * TheSilkMiner: Refactor plugin to comply to the new plugin name
 * TheSilkMiner: Add file exclusions
 * TheSilkMiner: Add possibility to change the `Needs Translation` text
+* TheSilkMiner: Add `TranslationNeededTask`
 
 ## 1.0
 
