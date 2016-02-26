@@ -1,4 +1,6 @@
-package net.thesilkminer.gradle.plugin.languagechecker
+package net.thesilkminer.gradle.plugin.translationchecker.tasks
+
+import net.thesilkminer.gradle.plugin.translationchecker.TranslationFileTemplate
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction

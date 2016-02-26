@@ -10,6 +10,7 @@
 * TheSilkMiner: Class split
 * TheSilkMiner: Add `modId` option
 * TheSilkMiner: Restore plugin architecture
+* TheSilkMiner: Refactor plugin to comply to the new plugin name
 
 ## 1.0
 

@@ -1,4 +1,4 @@
-package net.thesilkminer.gradle.plugin.languagechecker
+package net.thesilkminer.gradle.plugin.translationchecker
 
 class PluginExtension {
 

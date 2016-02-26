@@ -1,11 +1,13 @@
-package net.thesilkminer.gradle.plugin.languagechecker
+package net.thesilkminer.gradle.plugin.translationchecker
+
+import net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 @SuppressWarnings("all")
 // Once again...
-class LanguageChecker implements Plugin<Project> {
+class TranslationChecker implements Plugin<Project> {
 
     @Override
     void apply(final Project project) {
