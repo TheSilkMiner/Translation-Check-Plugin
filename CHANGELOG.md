@@ -7,8 +7,9 @@
 
 ## 1.1
 
-* TheSilkMiner: Add `modId` option
 * TheSilkMiner: Class split
+* TheSilkMiner: Add `modId` option
+* TheSilkMiner: Restore plugin architecture
 
 ## 1.0
 
