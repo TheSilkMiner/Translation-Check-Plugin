@@ -1,6 +1,14 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
+import net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask
+
 class TranslationFileTemplate {
+
+    TranslationCheckTask task
+
+    TranslationFileTemplate(TranslationCheckTask t) {
+        task = t
+    }
 
     static ALL_WHITESPACE = ~/^\s*$/
 
@@ -35,7 +43,7 @@ class TranslationFileTemplate {
                 def translation = translations[key]
                 translation ?
                         "${key}=${escape(translation)}" as String :
-                        "#${key}=${original_translation} ## NEEDS TRANSLATION ##" as String
+                        "#${key}=${original_translation} ${task.needsTranslationMark}" as String
             }
         }
     }

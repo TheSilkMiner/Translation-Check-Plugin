@@ -12,6 +12,7 @@
 * TheSilkMiner: Restore plugin architecture
 * TheSilkMiner: Refactor plugin to comply to the new plugin name
 * TheSilkMiner: Add file exclusions
+* TheSilkMiner: Add possibility to change the `Needs Translation` text
 
 ## 1.0
 

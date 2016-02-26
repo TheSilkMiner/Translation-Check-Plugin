@@ -22,6 +22,9 @@ class TranslationCheckTask extends DefaultTask {
     @Input
     List<String> excludedFileNames = []
 
+    @Input
+    String needsTranslationMark = "## NEEDS TRANSLATION ##"
+
     @TaskAction
     void run() {
 
@@ -52,7 +55,7 @@ class TranslationCheckTask extends DefaultTask {
         for (File langFile : langDir.listFiles()) {
             if (langFile.name.equals(templateFileName)) {
                 logger.info('Found template file: ' + langFile)
-                templateFile = new TranslationFileTemplate()
+                templateFile = new TranslationFileTemplate(this)
                 templateFile.parseFile(langFile)
             } else if (!langFile.isDirectory() && !excludedFileNames.contains(langFile.name)) {
                 langFiles.add(langFile)
