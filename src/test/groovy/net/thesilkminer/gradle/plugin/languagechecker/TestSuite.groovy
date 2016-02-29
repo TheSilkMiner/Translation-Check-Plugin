@@ -28,8 +28,9 @@ class SubstitutionTest {
         def output = outputBuffer.toString().replace(System.getProperty("line.separator"), "\n")
         def expected = params.expected
 
-        assert output == expected
-        assert params.messages == tft.validationMessages
+        assert expected == null || output == expected
+        for (message in params.messages)
+            assert message in tft.validationMessages
     }
 
     @Test
@@ -87,8 +88,8 @@ class SubstitutionTest {
     }
 
     @Test
-    void testValidator() {
-         testSubstitution {
+    void testValidatorBasic() {
+        testSubstitution {
             template = "#@alias a\nk=v"
             translation = "k=t"
             expected = "k=t\n"
@@ -115,6 +116,49 @@ class SubstitutionTest {
                                       key : "k",
                                       column : 0,
                                       message : "translation: k = t"
+                                     ),
+            ]
+        }
+    }
+
+    @Test
+    void testValidatorAliasesAndUnmatched() {
+        testSubstitution {
+            template = "#@alias a\nk1=v1\nk2=v2"
+            translation = "a=t1\nx=t2"
+
+            validators = [
+                new Validator() {
+                     def validateTemplate(Set<String> keys, String value, ValidationMessageAppender addMessage) {
+                        addMessage(0, "template: " + keys.sort() + " = " + value)
+                     }
+
+                     def validateTranslation(String key, String value, ValidationMessageAppender addMessage) {
+                        addMessage(0, "translation: " + key + " = " + value)
+                     }
+                }
+            ]
+
+            messages = [
+                new ValidationMessage(source : "<stream>",
+                                      key : "k1",
+                                      column : 0,
+                                      message : "template: [a, k1] = v1"
+                                      ),
+                new ValidationMessage(source : "<stream>",
+                      key : "k2",
+                      column : 0,
+                      message : "template: [k2] = v2"
+                      ),
+                new ValidationMessage(source : "<stream>",
+                                      key : "a",
+                                      column : 0,
+                                      message : "translation: a = t1"
+                                     ),
+                new ValidationMessage(source : "<stream>",
+                                      key : "x",
+                                      column : 0,
+                                      message : "translation: x = t2"
                                      ),
             ]
         }
