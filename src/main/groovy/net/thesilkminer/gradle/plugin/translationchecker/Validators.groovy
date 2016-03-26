@@ -56,12 +56,13 @@ class McFormatCodes implements Validator {
 
     static final Set<Integer> allowedCodepoints = toCodepoints(
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', // colors
-        'k', // obfuscated
-        'l', // bold,
-        'm', // strikethrough
-        'n', // underline
-        'o', // italic
-        'r', // reset
+                                                          'A', 'B', 'C', 'D', 'E', 'F',
+        'k', 'K', // obfuscated
+        'l', 'L', // bold,
+        'm', 'M', // strikethrough
+        'n', 'N', // underline
+        'o', 'O', // italic
+        'r', 'R', // reset
         '\u00A7', // escape
     );
 
