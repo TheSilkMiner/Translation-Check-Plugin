@@ -46,7 +46,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'net.thesilkminer.gradle.plugin.languagechecker.Standalone'
+        attributes 'Main-Class': 'net.thesilkminer.gradle.plugin.translationchecker.Standalone'
     }
 }
 
