@@ -3,7 +3,7 @@ package net.thesilkminer.gradle.plugin.translationchecker.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
-import groovy.transform.*
+import groovy.transform.CompileStatic
 
 import net.thesilkminer.gradle.plugin.translationchecker.TranslationFileTemplate
 import net.thesilkminer.gradle.plugin.translationchecker.Validators

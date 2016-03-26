@@ -1,7 +1,7 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
 import joptsimple.*
-import groovy.transform.*
+import groovy.transform.CompileStatic
 
 @CompileStatic
 class Standalone implements TranslationCheckBatchJob {

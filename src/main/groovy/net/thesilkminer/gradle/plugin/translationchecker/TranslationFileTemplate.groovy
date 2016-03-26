@@ -1,7 +1,9 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
 import net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask
-import groovy.transform.*
+import groovy.transform.CompileStatic
+import groovy.transform.Sortable
+import groovy.transform.Canonical
 
 @CompileStatic
 interface LineTemplate {
