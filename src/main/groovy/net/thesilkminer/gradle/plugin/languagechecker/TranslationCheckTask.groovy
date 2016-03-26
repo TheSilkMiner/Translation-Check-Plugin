@@ -12,13 +12,18 @@ interface LineTemplate {
     String fill(Map<String, String> translations)
 }
 
+@Sortable
 @Canonical
 @CompileStatic
 class ValidationMessage {
     String source
     String key
-    int column
+    Integer column
     String message
+
+    String description() {
+        "Warning@${source}:${key}:${column} - ${message}"
+    }
 }
 
 @CompileStatic
@@ -70,9 +75,15 @@ class TranslationFileTemplate {
     }
 
     public final List<Validator> validators = []
+
     public final List<ValidationMessage> validationMessages = []
 
     private List<LineTemplate> templates = []
+
+    def loadValidators(Set<String> ids) {
+        Collection<Validator> newValidators = ids.collect Validators.&create
+        validators.addAll(newValidators)
+    }
 
     def parseTemplate(File file) {
         def state = new TemplateParseState(source : file.getAbsolutePath(), messages : validationMessages)
@@ -150,21 +161,24 @@ class TranslationFileTemplate {
 trait TranslationCheckBatchJob {
     abstract def log(String log)
 
-    def batchTranslationCheck(File baseDir, String templateFileName) {
-        def templateFile
+    def batchTranslationCheck(File baseDir, String templateFileName, Set<String> validators) {
         final List<File> langFiles = []
+
+        boolean foundTemplate = false
+        def templateFile = new TranslationFileTemplate()
+        templateFile.loadValidators(validators)
 
         for (File langFile : baseDir.listFiles()) {
             if (langFile.getName().equals(templateFileName)) {
               log('Found template file: ' + langFile)
-                templateFile = new TranslationFileTemplate()
-                templateFile.parseTemplate(langFile)
+              foundTemplate = true
+              templateFile.parseTemplate(langFile)
             } else if (!langFile.isDirectory()) {
                 langFiles.add(langFile)
             }
         }
 
-        if (templateFile == null) {
+        if (!foundTemplate) {
             throw new RuntimeException("Template file ${templateFileName} not found")
         }
 
@@ -172,6 +186,9 @@ trait TranslationCheckBatchJob {
             log('Processing lang file: ' + f)
             templateFile.processTranslation(f, f)
         }
+
+        for (def m : templateFile.validationMessages.toSorted())
+            println m.description()
     }
 }
 
@@ -184,6 +201,9 @@ class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJ
     @Input
     String templateFileName = "en_US.lang"
 
+    @Input
+    String[] enabledValidators = Validators.allValidators
+
     def log(String log) {
         logger.info(log)
     }
@@ -193,7 +213,9 @@ class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJ
         if (langDir == null || !langDir.isDirectory())
             throw new RuntimeException("Path '${langDir}' is not a directory")
 
-        batchTranslationCheck(langDir, templateFileName)
+        def ids = new HashSet<>()
+        ids.addAll(validators)
+        batchTranslationCheck(langDir, templateFileName, ids)
     }
 }
 
@@ -205,6 +227,7 @@ class Standalone implements TranslationCheckBatchJob {
     final OptionSpec<String> singleMode
     final OptionSpec<String> output
     final OptionSpec<Void> help
+    final OptionSpec<String> validators
 
     Standalone() {
         parser = new OptionParser()
@@ -212,6 +235,7 @@ class Standalone implements TranslationCheckBatchJob {
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
+        validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
         help = parser.accepts("h").forHelp()
     }
 
@@ -228,17 +252,18 @@ class Standalone implements TranslationCheckBatchJob {
         }
 
         boolean isSingleMode = options.has(singleMode)
+        Set<String> validatorSet = new HashSet<>(options.valuesOf(validators))
         for (File baseDir : options.valuesOf(baseDirs)) {
             println "Starting " + baseDir.getAbsolutePath()
             if (isSingleMode) {
-                singleFileTranslationCheck(baseDir, options)
+                singleFileTranslationCheck(baseDir, validatorSet, options)
             } else {
-                batchTranslationCheck(baseDir, options.valueOf(template))
+                batchTranslationCheck(baseDir, options.valueOf(template), validatorSet)
             }
         }
     }
 
-    def singleFileTranslationCheck(File baseDir, OptionSet options) {
+    def singleFileTranslationCheck(File baseDir, Set<String> validators, OptionSet options) {
         String templateFileName = options.valueOf(template)
         File templateFile = new File(baseDir, templateFileName)
         if (!templateFile.isFile())
@@ -260,10 +285,14 @@ class Standalone implements TranslationCheckBatchJob {
 
         println "Loading template ${templateFile.getAbsolutePath()}"
         def templateProcessor = new TranslationFileTemplate()
+        templateProcessor.loadValidators(validators)
         templateProcessor.parseTemplate(templateFile)
 
         println "Processing ${inputFile.getAbsolutePath()} to ${outputFile.getAbsolutePath()}"
         templateProcessor.processTranslation(inputFile, outputFile)
+
+        for (def m : templateProcessor.validationMessages.toSorted())
+            println m.description()
     }
 
     static void main(String... args) {

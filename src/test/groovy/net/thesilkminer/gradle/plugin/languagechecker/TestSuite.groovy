@@ -163,4 +163,30 @@ class SubstitutionTest {
             ]
         }
     }
+
+    @Test
+    void testEmptyEntries() {
+        testSubstitution {
+            template = "k=v"
+            translation = "k"
+
+            validators = [
+                new Validator() {
+                     def validateTemplate(Set<String> keys, String value, ValidationMessageAppender addMessage) {}
+
+                     def validateTranslation(String key, String value, ValidationMessageAppender addMessage) {
+                        addMessage(0, "translation: " + key + " = '" + value +"'")
+                     }
+                }
+            ]
+
+            messages = [
+                new ValidationMessage(source : "<stream>",
+                                      key : "k",
+                                      column : 0,
+                                      message : "translation: k = ''"
+                                     ),
+            ]
+        }
+    }
 }
