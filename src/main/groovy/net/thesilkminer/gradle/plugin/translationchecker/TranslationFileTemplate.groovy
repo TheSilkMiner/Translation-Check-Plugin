@@ -158,23 +158,27 @@ class TranslationFileTemplate {
 }
 
 @CompileStatic
+interface TranslationTemplateConfigurator {
+    def configure(TranslationFileTemplate template);
+}
+
+@CompileStatic
 trait TranslationCheckBatchJob {
     abstract def log(String log)
 
-    def batchTranslationCheck(File baseDir, String templateFileName, String needsTranslationMarker, Set<String> validators) {
+    def batchTranslationCheck(File baseDir, String templateFileName, Collection<String> excludedFileNames, TranslationTemplateConfigurator configurator) {
         final List<File> langFiles = []
 
         boolean foundTemplate = false
         def templateFile = new TranslationFileTemplate()
-        templateFile.loadValidators(validators)
-        templateFile.needsTranslationMarker = needsTranslationMarker
+        configurator.configure(templateFile)
 
         for (File langFile : baseDir.listFiles()) {
-            if (langFile.getName().equals(templateFileName)) {
+            if (langFile.name.equals(templateFileName)) {
               log('Found template file: ' + langFile)
               foundTemplate = true
               templateFile.parseTemplate(langFile)
-            } else if (!langFile.isDirectory()) {
+            } else if (!langFile.isDirectory() && !(langFile.name in excludedFileNames)) {
                 langFiles.add(langFile)
             }
         }

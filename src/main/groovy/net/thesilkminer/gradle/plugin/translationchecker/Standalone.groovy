@@ -8,6 +8,7 @@ class Standalone implements TranslationCheckBatchJob {
     final OptionParser parser
     final OptionSpec<File> baseDirs
     final OptionSpec<String> template
+    final OptionSpec<String> excludedFilenames
     final OptionSpec<String> singleMode
     final OptionSpec<String> output
     final OptionSpec<Void> help
@@ -18,6 +19,7 @@ class Standalone implements TranslationCheckBatchJob {
         parser = new OptionParser()
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
+        excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
         validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
@@ -44,7 +46,11 @@ class Standalone implements TranslationCheckBatchJob {
             if (isSingleMode) {
                 singleFileTranslationCheck(baseDir, validatorSet, options)
             } else {
-                batchTranslationCheck(baseDir, options.valueOf(template), options.valueOf(marker), validatorSet)
+                batchTranslationCheck(baseDir, options.valueOf(template), options.valuesOf(excludedFilenames).asList(),
+                { TranslationFileTemplate templateFile ->
+                    templateFile.loadValidators(validatorSet)
+                    templateFile.needsTranslationMarker = options.valueOf(marker)
+                } as TranslationTemplateConfigurator)
             }
         }
     }
