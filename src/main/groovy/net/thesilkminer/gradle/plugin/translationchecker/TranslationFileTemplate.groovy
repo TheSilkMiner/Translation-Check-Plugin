@@ -1,8 +1,6 @@
-package net.thesilkminer.gradle.plugin.languagechecker
+package net.thesilkminer.gradle.plugin.translationchecker
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.Input
+import net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask
 import groovy.transform.*
 
 import joptsimple.*
@@ -70,13 +68,15 @@ class TranslationFileTemplate {
         '\f' : '\\f'
     ]
 
-    String escape(String value) {
+    static String escape(String value) {
         value.collectReplacements { ESCAPES[it.toString()] }
     }
 
     public final List<Validator> validators = []
 
     public final List<ValidationMessage> validationMessages = []
+    
+    public String needsTranslationMarker =  "## NEEDS TRANSLATION ##"
 
     private List<LineTemplate> templates = []
 
@@ -119,7 +119,7 @@ class TranslationFileTemplate {
                     if (translation) return "${current_key}=${escape(translation)}" as String
                 }
 
-                return "#${current_key}=${original_translation} ## NEEDS TRANSLATION ##" as String
+                return "#${current_key}=${original_translation} ${needsTranslationMarker}" as String
             } as LineTemplate]
         }
     }
@@ -161,12 +161,13 @@ class TranslationFileTemplate {
 trait TranslationCheckBatchJob {
     abstract def log(String log)
 
-    def batchTranslationCheck(File baseDir, String templateFileName, Set<String> validators) {
+    def batchTranslationCheck(File baseDir, String templateFileName, String needsTranslationMarker, Set<String> validators) {
         final List<File> langFiles = []
 
         boolean foundTemplate = false
         def templateFile = new TranslationFileTemplate()
         templateFile.loadValidators(validators)
+        templateFile.needsTranslationMarker = needsTranslationMarker
 
         for (File langFile : baseDir.listFiles()) {
             if (langFile.getName().equals(templateFileName)) {
@@ -193,33 +194,6 @@ trait TranslationCheckBatchJob {
 }
 
 @CompileStatic
-class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJob {
-
-    @Input
-    File langDir
-
-    @Input
-    String templateFileName = "en_US.lang"
-
-    @Input
-    String[] enabledValidators = Validators.allValidators
-
-    def log(String log) {
-        logger.info(log)
-    }
-
-    @TaskAction
-    void run() {
-        if (langDir == null || !langDir.isDirectory())
-            throw new RuntimeException("Path '${langDir}' is not a directory")
-
-        def ids = new HashSet<>()
-        ids.addAll(validators)
-        batchTranslationCheck(langDir, templateFileName, ids)
-    }
-}
-
-@CompileStatic
 class Standalone implements TranslationCheckBatchJob {
     final OptionParser parser
     final OptionSpec<File> baseDirs
@@ -228,6 +202,7 @@ class Standalone implements TranslationCheckBatchJob {
     final OptionSpec<String> output
     final OptionSpec<Void> help
     final OptionSpec<String> validators
+    final OptionSpec<String> marker
 
     Standalone() {
         parser = new OptionParser()
@@ -236,6 +211,7 @@ class Standalone implements TranslationCheckBatchJob {
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
         validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
+        marker = parser.accepts("marker").withRequiredArg().ofType(String.class).defaultsTo("## NEEDS TRANSLATION ##")
         help = parser.accepts("h").forHelp()
     }
 
@@ -258,7 +234,7 @@ class Standalone implements TranslationCheckBatchJob {
             if (isSingleMode) {
                 singleFileTranslationCheck(baseDir, validatorSet, options)
             } else {
-                batchTranslationCheck(baseDir, options.valueOf(template), validatorSet)
+                batchTranslationCheck(baseDir, options.valueOf(template), options.valueOf(marker), validatorSet)
             }
         }
     }
@@ -286,6 +262,8 @@ class Standalone implements TranslationCheckBatchJob {
         println "Loading template ${templateFile.getAbsolutePath()}"
         def templateProcessor = new TranslationFileTemplate()
         templateProcessor.loadValidators(validators)
+        templateProcessor.needsTranslationMarker = options.valueOf(marker)
+        
         templateProcessor.parseTemplate(templateFile)
 
         println "Processing ${inputFile.getAbsolutePath()} to ${outputFile.getAbsolutePath()}"

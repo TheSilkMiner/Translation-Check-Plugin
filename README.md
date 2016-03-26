@@ -2,7 +2,7 @@
 **Status of developing branch (`master`):** [![Build Status](https://travis-ci.org/TheSilkMiner/Translation-Check-Plugin.svg?branch=master)](https://travis-ci.org/TheSilkMiner/Translation-Check-Plugin)
 
 ## Description
-A simple Gradle task which checks and updates translations.
+A simple Gradle task/plugin which checks and updates translations.
 
 ## Example of usage
 
@@ -23,9 +23,10 @@ buildscript {
   }
 }
 
-task translationCheck(type: net.thesilkminer.gradle.plugin.languagechecker.TranslationCheckTask) {
+task translationCheck(type: net.thesilkminer.gradle.plugin.translationchecker.tasks.TranslationCheckTask) {
     langDir = file("src/main/resources/assets/modid/lang")
     //templateFileName = "..." // optional, set to "en_US.lang" by default
+    // See documentation for more options
 }
 ```
 
@@ -33,4 +34,4 @@ To execute, just call:
 ```bash
 ./gradlew translationCheck
 ```
-or something similar, depending on operating system.
+in Terminal or PowerShell
