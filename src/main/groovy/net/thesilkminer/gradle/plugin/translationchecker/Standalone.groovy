@@ -1,7 +1,15 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
-import joptsimple.*
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationCheckBatchJob
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationFileTemplate
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationTemplateConfigurator
+import net.thesilkminer.gradle.plugin.translationchecker.validation.Validators
+
 import groovy.transform.CompileStatic
+
+import joptsimple.OptionParser
+import joptsimple.OptionSet
+import joptsimple.OptionSpec
 
 @CompileStatic
 class Standalone implements TranslationCheckBatchJob {
@@ -19,10 +27,13 @@ class Standalone implements TranslationCheckBatchJob {
         parser = new OptionParser()
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
-        excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
+        //excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
+        excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo("")
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
-        validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
+        //validators = parser.accepts("validators")withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
+        validators = parser.accepts("validators").withRequiredArg().ofType(String.class)
+                .defaultsTo(Validators.allValidatorsAsString)
         marker = parser.accepts("marker").withRequiredArg().ofType(String.class).defaultsTo("## NEEDS TRANSLATION ##")
         help = parser.accepts("help").forHelp()
     }

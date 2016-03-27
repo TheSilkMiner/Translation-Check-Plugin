@@ -1,5 +1,10 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationFileTemplate
+import net.thesilkminer.gradle.plugin.translationchecker.validation.ValidationMessage
+import net.thesilkminer.gradle.plugin.translationchecker.validation.ValidationMessageAppender
+import net.thesilkminer.gradle.plugin.translationchecker.validation.Validator
+
 import org.junit.Test
 
 class SubstitutionTest {
@@ -12,7 +17,7 @@ class SubstitutionTest {
         List<ValidationMessage> messages = []
     }
 
-    def testSubstitution(Closure setup) {
+    static def testSubstitution(Closure setup) {
         def params = new Params()
         //setup.resolveStrategy = Closure.DELEGATE_FIRST
         setup.delegate = params

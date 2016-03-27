@@ -30,6 +30,7 @@
 * boq: Expand import wildchars
 * boq: Add uppercase variants of format chars
 * boq: Re-add accidentally removed functionality
+* TheSilkMiner: General cleanup for version 1.1
 
 ## 1.0
 

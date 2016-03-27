@@ -1,16 +1,16 @@
 package net.thesilkminer.gradle.plugin.translationchecker.tasks
 
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationFileTemplate
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationCheckBatchJob
+import net.thesilkminer.gradle.plugin.translationchecker.translation.TranslationTemplateConfigurator
+import net.thesilkminer.gradle.plugin.translationchecker.validation.Validators
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 import groovy.transform.CompileStatic
-
-import net.thesilkminer.gradle.plugin.translationchecker.TranslationFileTemplate
-import net.thesilkminer.gradle.plugin.translationchecker.Validators
-import net.thesilkminer.gradle.plugin.translationchecker.TranslationCheckBatchJob
-import net.thesilkminer.gradle.plugin.translationchecker.TranslationTemplateConfigurator
 
 @CompileStatic
 @SuppressWarnings("all")

@@ -1,6 +1,9 @@
 package net.thesilkminer.gradle.plugin.translationchecker
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class PluginExtension {
 
-    static def dependentTaskName = "§INTERNAL§"
+    static String dependentTaskName = "§INTERNAL§"
 }
