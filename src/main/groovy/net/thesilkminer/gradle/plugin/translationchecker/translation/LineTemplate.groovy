@@ -4,5 +4,5 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 interface LineTemplate {
-    String fill(Map<Object, Object> translations)
+    String fill(Map<String, String> translations)
 }

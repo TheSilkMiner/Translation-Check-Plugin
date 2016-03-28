@@ -73,7 +73,7 @@ class TranslationFileTemplate {
             return [{ translations ->
                 for (key in keys) {
                     String translation = translations[key]
-                    if (translation) return "${current_key}=${escape((String) translation)}" as String
+                    if (translation) return "${current_key}=${escape(translation as String)}" as String
                 }
 
                 return "#${current_key}=${original_translation} ${needsTranslationMarker}" as String
@@ -81,23 +81,23 @@ class TranslationFileTemplate {
         }
     }
 
-    static Map<Object, Object> parseProperties(Reader reader) {
+    static Map<String, String> parseProperties(Reader reader) {
         def p = new Properties()
         p.load(reader)
-        p
+        p as Map<String, String> //Originally cast the Java way, throwing errors. I wonder why this doesn't.
     }
 
-    def validateTranslation(Map<Object, Object> translation, String source) {
+    def validateTranslation(Map<String, String> translation, String source) {
         translation.each { key, value ->
             ValidationMessageAppender appender = { int column, String message ->
                 validationMessages << new ValidationMessage(source : source, key : key, column : column, message : message)
             }
 
-            validators*.validateTranslation((String) key, (String) value, appender)
+            validators*.validateTranslation(key, value, appender)
         }
     }
 
-    def fillFromTemplate(BufferedWriter output, Map<Object, Object> translations) {
+    def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
         templates.each { output.writeLine(it.fill(translations)) }
     }
 

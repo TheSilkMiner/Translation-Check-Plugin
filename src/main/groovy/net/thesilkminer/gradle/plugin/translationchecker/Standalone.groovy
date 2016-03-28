@@ -28,7 +28,7 @@ class Standalone implements TranslationCheckBatchJob {
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
         //excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
-        excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo("")
+        excludedFilenames = parser.accepts("exclude").withRequiredArg().ofType(String.class).defaultsTo()
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
         //validators = parser.accepts("validators")withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
