@@ -31,6 +31,8 @@ class TranslationFileTemplate {
 
     public boolean dryRun = false
 
+    public String lineEnding = "\n"
+
     private List<LineTemplate> templates = []
 
     def loadValidators(Set<String> ids) {
@@ -100,7 +102,10 @@ class TranslationFileTemplate {
     }
 
     def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
-        templates.each { output.writeLine(it.fill(translations)) }
+        templates.each {
+            output.write(it.fill(translations))
+            output.write(lineEnding)
+        }
     }
 
     def processTranslation(File inFile, File outFile) {
