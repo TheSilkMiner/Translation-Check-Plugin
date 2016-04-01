@@ -22,19 +22,20 @@ class Standalone implements TranslationCheckBatchJob {
     final OptionSpec<Void> help
     final OptionSpec<String> validators
     final OptionSpec<String> marker
+    final OptionSpec<Void> dryRun
+    final OptionSpec<NewLine> lineEnding
 
     Standalone() {
         parser = new OptionParser()
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
-        //excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
         excludedFilenames = parser.accepts("exclude").withRequiredArg().ofType(String.class).defaultsTo()
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
-        //validators = parser.accepts("validators")withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
-        validators = parser.accepts("validators").withRequiredArg().ofType(String.class)
-                .defaultsTo(Validators.allValidatorsAsString)
+        validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidatorsAsString)
         marker = parser.accepts("marker").withRequiredArg().ofType(String.class).defaultsTo("## NEEDS TRANSLATION ##")
+        dryRun = parser.accepts("dry-run", "runs without modyfing any files")
+        lineEnding = parser.accepts("line-ending").withRequiredArg().ofType(NewLine.class).defaultsTo(NewLine.LF)
         help = parser.accepts("help").forHelp()
     }
 
@@ -51,22 +52,27 @@ class Standalone implements TranslationCheckBatchJob {
         }
 
         boolean isSingleMode = options.has(singleMode)
-        Set<String> validatorSet = new HashSet<>(options.valuesOf(validators))
+
+        def configurator = { TranslationFileTemplate templateFile ->
+            Set<String> validatorSet = new HashSet<>(options.valueOf(validators).tokenize(','))
+            templateFile.loadValidators(validatorSet)
+
+            templateFile.needsTranslationMarker = options.valueOf(marker)
+            templateFile.dryRun = options.has(dryRun)
+            templateFile.lineEnding = options.valueOf(lineEnding).value
+        } as TranslationTemplateConfigurator
+
         for (File baseDir : options.valuesOf(baseDirs)) {
             println "Starting " + baseDir.getAbsolutePath()
             if (isSingleMode) {
-                singleFileTranslationCheck(baseDir, validatorSet, options)
+                singleFileTranslationCheck(baseDir, configurator, options)
             } else {
-                batchTranslationCheck(baseDir, options.valueOf(template), options.valuesOf(excludedFilenames).asList(),
-                { TranslationFileTemplate templateFile ->
-                    templateFile.loadValidators(validatorSet)
-                    templateFile.needsTranslationMarker = options.valueOf(marker)
-                } as TranslationTemplateConfigurator)
+                batchTranslationCheck(baseDir, options.valueOf(template), options.valuesOf(excludedFilenames).asList(), configurator)
             }
         }
     }
 
-    def singleFileTranslationCheck(File baseDir, Set<String> validators, OptionSet options) {
+    def singleFileTranslationCheck(File baseDir, TranslationTemplateConfigurator configurator, OptionSet options) {
         String templateFileName = options.valueOf(template)
         File templateFile = new File(baseDir, templateFileName)
         if (!templateFile.isFile())
@@ -88,8 +94,7 @@ class Standalone implements TranslationCheckBatchJob {
 
         println "Loading template ${templateFile.getAbsolutePath()}"
         def templateProcessor = new TranslationFileTemplate()
-        templateProcessor.loadValidators(validators)
-        templateProcessor.needsTranslationMarker = options.valueOf(marker)
+        configurator.configure(templateProcessor)
 
         templateProcessor.parseTemplate(templateFile)
 

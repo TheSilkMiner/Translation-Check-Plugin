@@ -8,8 +8,6 @@ import net.thesilkminer.gradle.plugin.translationchecker.validation.validators.U
 
 import groovy.transform.CompileStatic
 
-import java.util.regex.Pattern
-
 @CompileStatic
 class Validators {
     static ValidatorFactory wrap(Class<? extends Validator> cls) {
@@ -29,19 +27,12 @@ class Validators {
     }
 
     static String getAllValidatorsAsString() {
-        return Arrays.toString(allValidators)
-    }
-
-    static String[] unWrap(final String validators) {
-        String unwrapped = validators
-        unwrapped = unwrapped.replace('[', '')
-        unwrapped = unwrapped.replace(']', '')
-
-        String[] unwrappedArray = unwrapped.split(Pattern.quote(", "))
-        unwrappedArray
+        return  VALIDATORS.keySet().join(",")
     }
 
     static Validator create(String id) {
-        return VALIDATORS[id].create()
+        ValidatorFactory factory = VALIDATORS[id]
+        if (factory == null) throw new IllegalArgumentException("Unknown validator: " + id)
+        return factory.create()
     }
 }

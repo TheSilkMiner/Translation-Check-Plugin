@@ -29,6 +29,10 @@ class TranslationFileTemplate {
 
     public String needsTranslationMarker =  "## NEEDS TRANSLATION ##"
 
+    public boolean dryRun = false
+
+    public String lineEnding = "\n"
+
     private List<LineTemplate> templates = []
 
     def loadValidators(Set<String> ids) {
@@ -98,19 +102,22 @@ class TranslationFileTemplate {
     }
 
     def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
-        templates.each { output.writeLine(it.fill(translations)) }
+        templates.each {
+            output.write(it.fill(translations))
+            output.write(lineEnding)
+        }
     }
 
     def processTranslation(File inFile, File outFile) {
         def translations = inFile.withReader('UTF-8') { parseProperties(it) }
         validateTranslation(translations, outFile.getAbsolutePath())
-        outFile.withWriter('UTF-8') { fillFromTemplate(it, translations) }
+        if (!dryRun) outFile.withWriter('UTF-8') { fillFromTemplate(it, translations) }
     }
 
     def processTranslation(Reader reader, BufferedWriter writer) {
         def translations = reader.withCloseable { parseProperties((Reader) it) }
         validateTranslation(translations, "<stream>")
-        writer.withCloseable { fillFromTemplate((BufferedWriter) it, translations) }
+        if (!dryRun) writer.withCloseable { fillFromTemplate(it as BufferedWriter, translations) }
     }
 }
 
