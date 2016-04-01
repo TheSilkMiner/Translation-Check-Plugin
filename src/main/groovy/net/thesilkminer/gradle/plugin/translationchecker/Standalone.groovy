@@ -28,13 +28,10 @@ class Standalone implements TranslationCheckBatchJob {
         parser = new OptionParser()
         baseDirs = parser.nonOptions("dir").ofType(File.class)
         template = parser.accepts("template").withRequiredArg().defaultsTo("en_US.lang")
-        //excludedFilenames = parser.accepts("exclude").withRequiredArg().defaultsTo(new String[0])
         excludedFilenames = parser.accepts("exclude").withRequiredArg().ofType(String.class).defaultsTo()
         singleMode = parser.accepts("single").withRequiredArg()
         output = parser.accepts("output").availableIf(singleMode).withRequiredArg()
-        //validators = parser.accepts("validators")withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidators)
-        validators = parser.accepts("validators").withRequiredArg().ofType(String.class)
-                .defaultsTo(Validators.allValidatorsAsString)
+        validators = parser.accepts("validators").withRequiredArg().ofType(String.class).defaultsTo(Validators.allValidatorsAsString)
         marker = parser.accepts("marker").withRequiredArg().ofType(String.class).defaultsTo("## NEEDS TRANSLATION ##")
         dryRun = parser.accepts("dry-run", "runs without modyfing any files")
         help = parser.accepts("help").forHelp()
@@ -54,7 +51,7 @@ class Standalone implements TranslationCheckBatchJob {
 
         boolean isSingleMode = options.has(singleMode)
         boolean isDryRun = options.has(dryRun)
-        Set<String> validatorSet = new HashSet<>(options.valuesOf(validators))
+        Set<String> validatorSet = new HashSet<>(options.valueOf(validators).tokenize(','))
         for (File baseDir : options.valuesOf(baseDirs)) {
             println "Starting " + baseDir.getAbsolutePath()
             if (isSingleMode) {
