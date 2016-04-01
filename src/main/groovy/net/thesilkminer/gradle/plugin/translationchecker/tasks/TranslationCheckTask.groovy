@@ -37,6 +37,9 @@ class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJ
     @Input
     String[] enabledValidators = Validators.allValidators
 
+    @Input
+    boolean dryRun = false
+
     def log(String log) {
         logger.info(log)
     }
@@ -63,6 +66,7 @@ class TranslationCheckTask extends DefaultTask implements TranslationCheckBatchJ
         { TranslationFileTemplate templateFile ->
                     templateFile.loadValidators(validators)
                     templateFile.needsTranslationMarker = needsTranslationMark
+                    templateFile.dryRun = dryRun
         } as TranslationTemplateConfigurator)
     }
 }

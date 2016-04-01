@@ -22,6 +22,7 @@ class Standalone implements TranslationCheckBatchJob {
     final OptionSpec<Void> help
     final OptionSpec<String> validators
     final OptionSpec<String> marker
+    final OptionSpec<Void> dryRun
 
     Standalone() {
         parser = new OptionParser()
@@ -35,6 +36,7 @@ class Standalone implements TranslationCheckBatchJob {
         validators = parser.accepts("validators").withRequiredArg().ofType(String.class)
                 .defaultsTo(Validators.allValidatorsAsString)
         marker = parser.accepts("marker").withRequiredArg().ofType(String.class).defaultsTo("## NEEDS TRANSLATION ##")
+        dryRun = parser.accepts("dry-run", "runs without modyfing any files")
         help = parser.accepts("help").forHelp()
     }
 
@@ -51,22 +53,24 @@ class Standalone implements TranslationCheckBatchJob {
         }
 
         boolean isSingleMode = options.has(singleMode)
+        boolean isDryRun = options.has(dryRun)
         Set<String> validatorSet = new HashSet<>(options.valuesOf(validators))
         for (File baseDir : options.valuesOf(baseDirs)) {
             println "Starting " + baseDir.getAbsolutePath()
             if (isSingleMode) {
-                singleFileTranslationCheck(baseDir, validatorSet, options)
+                singleFileTranslationCheck(baseDir, validatorSet, isDryRun, options)
             } else {
                 batchTranslationCheck(baseDir, options.valueOf(template), options.valuesOf(excludedFilenames).asList(),
                 { TranslationFileTemplate templateFile ->
                     templateFile.loadValidators(validatorSet)
                     templateFile.needsTranslationMarker = options.valueOf(marker)
+                    templateFile.dryRun = isDryRun
                 } as TranslationTemplateConfigurator)
             }
         }
     }
 
-    def singleFileTranslationCheck(File baseDir, Set<String> validators, OptionSet options) {
+    def singleFileTranslationCheck(File baseDir, Set<String> validators, boolean isDryRun, OptionSet options) {
         String templateFileName = options.valueOf(template)
         File templateFile = new File(baseDir, templateFileName)
         if (!templateFile.isFile())
@@ -90,6 +94,7 @@ class Standalone implements TranslationCheckBatchJob {
         def templateProcessor = new TranslationFileTemplate()
         templateProcessor.loadValidators(validators)
         templateProcessor.needsTranslationMarker = options.valueOf(marker)
+        templateProcessor.dryRun = isDryRun
 
         templateProcessor.parseTemplate(templateFile)
 
