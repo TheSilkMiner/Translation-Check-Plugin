@@ -63,7 +63,8 @@ class TranslationNeededTask extends DefaultTask {
             int count = 0;
 
             langFile.eachLine('UTF-8') {
-                if (it.endsWith(needsTranslationMark)) {
+                String string = it;
+                if (string.endsWith(needsTranslationMark)) {
                     count++;
                 }
             }
