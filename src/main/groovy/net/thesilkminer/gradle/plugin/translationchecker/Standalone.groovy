@@ -11,6 +11,22 @@ import joptsimple.OptionParser
 import joptsimple.OptionSet
 import joptsimple.OptionSpec
 
+enum NewLine {
+    SYSTEM(System.getProperty("line.separator")),
+    CR("\r"),
+    LF("\n"),
+    CRLF("\r\n"),
+
+    UNIX("\n"),
+    DOS("\r\n");
+
+    final String value;
+
+    private NewLine(String value) {
+        this.value = value;
+    }
+}
+
 @CompileStatic
 class Standalone implements TranslationCheckBatchJob {
     final OptionParser parser
