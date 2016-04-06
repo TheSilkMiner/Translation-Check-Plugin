@@ -2,8 +2,13 @@
 
 ## Index
 - 1.x
-  - [1.1](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.1) (Development)
+  - [1.2](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.2)
+  - [1.1](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.1)
   - [1.0](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.0)
+
+## 1.2
+
+* java.lang.NullPointerException
 
 ## 1.1
 
