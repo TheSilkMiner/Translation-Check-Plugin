@@ -5,7 +5,6 @@
 A simple Gradle task/plugin which checks and updates translations.
 
 ## Example of usage
-
 To use this task you need to make it visible to script and then configure it with some parameters:
 
 ```gradle
@@ -19,7 +18,7 @@ buildscript {
   dependencies {
     classpath group: 'net.thesilkminer.gradle.translationchecker',
               name: 'TranslationChecker',
-              version: '1.0'
+              version: '1.1'
   }
 }
 
@@ -31,7 +30,9 @@ task translationCheck(type: net.thesilkminer.gradle.plugin.translationchecker.ta
 ```
 
 To execute, just call:
-```bash
+```posh
 ./gradlew translationCheck
 ```
-in Terminal or PowerShell
+in Terminal or PowerShell.
+
+For more information, refer to the documentation, available in the `docs` directory.

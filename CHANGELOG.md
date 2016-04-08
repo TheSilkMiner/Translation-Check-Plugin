@@ -2,7 +2,7 @@
 
 ## Index
 - 1.x
-  - [1.2](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.2)
+  - [1.2](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.2) (Development)
   - [1.1](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.1)
   - [1.0](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.0)
 
