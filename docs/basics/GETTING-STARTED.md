@@ -16,6 +16,7 @@ Before being able to use this plug-in, you must meet certain requirements:
 - You must run it under Java 6 or later. Previous versions of Java are not supported and may lead to undocumented behaviour.
 - Your project must be using Gradle. Other build managers such as Maven are not currently supported.
 - You must have some (basic) Groovy knowledge.
+- You must use at least Gradle 2.11. Previous versions are not supported and **SURELY** lead to undocumented behaviour.
 
 If you meet all of this requirements, then you can proceed to the next session.
 
