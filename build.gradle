@@ -22,7 +22,7 @@ plugins {
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 //noinspection GroovyUnusedAssignment
-targetCompatibility = 1.6
+targetCompatibility = 1.8
 
 version = pluginVersion
 group = "net.thesilkminer.gradle.translationchecker"

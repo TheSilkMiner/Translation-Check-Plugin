@@ -1,5 +1,9 @@
 language: groovy
-sudo: false
+jdk:
+  - oraclejdk8
+  - openjdk8
+sudo: required
+dist: trusty
 before_install:
   - echo Before install...
   - echo Updating submodules...
