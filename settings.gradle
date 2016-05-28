@@ -1,0 +1,2 @@
+rootProject.name = 'Translation-Check-Plugin'
+include ":SKL-Java-Interpreter"

@@ -8,7 +8,7 @@
 
 ## 1.2
 
-* java.lang.NullPointerException
+* TheSilkMiner: Add SKL Interpreter to project
 
 ## 1.1
 

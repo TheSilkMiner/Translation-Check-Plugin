@@ -1,11 +1,14 @@
 language: groovy
 sudo: false
 before_install:
-  - echo Setting up workspace...
   - echo Before install...
+  - echo Updating submodules...
+  - git submodule update --init --recursive
+  - echo Setting up workspace...
   - chmod +x gradlew
   - ls -a -l -h --color
-  - echo Gradle 2.12 running on Linux environment.
+  - echo Downloading Gradle....
+  - ./gradlew
   - ./gradlew -version
 install:
   - echo Install...
@@ -19,7 +22,7 @@ script:
   - echo Script...
   - ./gradlew check --info
 after_success:
-  - echo Build successfull
+  - echo Build successful
   - echo Now building the artifacts
   - ./gradlew build --info
   - echo Deploying artifact
@@ -37,6 +40,7 @@ notifications:
   email:
     recipients:
       - sir.karati@outlook.com
+#      - bartek.bok@gmail.com
     on_success: change
     on_failure: always
   slack:

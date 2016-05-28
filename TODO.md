@@ -13,7 +13,7 @@ This is a list of TODOs to get ready for next version
 ## Changes
 - [ ] Log every-time a `NEEDS TRANSLATION` marker is added and/or found
 - [ ] **EXTREMELY BREAKING CHANGE:** Move all the task configuration to external `skd` file
-  - [ ] Add `SKL-Java-Interpreter` as submodule
+  - [X] Add `SKL-Java-Interpreter` as submodule
   - [ ] Construct example `skd` file
   - [ ] Allow auto-generation of configuration file through task-specified options
   - [ ] Full SKD parsing and structure migration

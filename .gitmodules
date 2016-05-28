@@ -1,0 +1,3 @@
+[submodule "SKL-Java-Interpreter"]
+	path = SKL-Java-Interpreter
+	url = https://github.com/TheSilkMiner/SKL-Java-Interpreter

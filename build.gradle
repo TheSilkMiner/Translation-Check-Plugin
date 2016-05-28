@@ -24,10 +24,10 @@ sourceCompatibility = 1.8
 //noinspection GroovyUnusedAssignment
 targetCompatibility = 1.6
 
-version = "1.1"
+version = pluginVersion
 group = "net.thesilkminer.gradle.translationchecker"
 //noinspection GroovyUnusedAssignment
-archivesBaseName = "TranslationChecker"
+archivesBaseName = "Translation-Check-Plugin"
 
 repositories {
     mavenCentral()
@@ -44,19 +44,78 @@ dependencies {
     shade 'net.sf.jopt-simple:jopt-simple:5.0-beta-1'
     shade 'org.codehaus.groovy:groovy:2.4.4'
     compile gradleApi()
+	compile project(":SKL-Java-Interpreter")
+	shade project(":SKL-Java-Interpreter")
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+ext.jarManifest = manifest {
+	attributes(
+		"Archive-Type": "jar"
+	)
+}
+
+ext.zipManifest = manifest {
+	attributes(
+		"Archive-Type": "zip"
+	)
+}
+
+ext.unarchivedManifest = manifest {
+	attributes(
+		"Archive-Type": "unarchived"
+	)
+}
+
+ext.authorManifest = manifest {
+	attributes(
+		"Authors": "TheSilkMiner, boq"
+	)
+}
+
+ext.runnableManifest = manifest {
+	attributes(
+		"Main-Class": "net.thesilkminer.gradle.plugin.translationchecker.Standalone"
+	)
+}
+
+ext.gitManifest = manifest {
+	attributes(
+		"Travis-Build": "false"
+	)
+}
+
+ext.shadowManifest = manifest {
+	attributes (
+		"ShadowJar": "true"
+	)
+}
+
+ext.normalManifest = manifest {
+	attributes (
+		"ShadowJar": "false"
+	)
+}
+
+ext.sourcesManifest = manifest {
+	attributes(
+		"__comment": "This archive only contains sources: you still need to download the main archive to use/develop with the plugin"
+	)
 }
 
 //noinspection GroovyAssignabilityCheck
 jar {
     manifest {
-        attributes 'Main-Class': 'net.thesilkminer.gradle.plugin.translationchecker.Standalone'
+        from runnableManifest, gitManifest, jarManifest, authorManifest, normalManifest
     }
 }
 
 shadowJar {
     configurations = [ project.configurations.shade ]
     exclude '**/*.html'
+	manifest {
+		from runnableManifest, gitManifest, jarManifest, authorManifest, shadowManifest
+	}
 }
 
 //noinspection GroovyAssignabilityCheck
@@ -65,6 +124,9 @@ build.dependsOn shadowJar
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
+	manifest {
+		from gitManifest, jarManifest, authorManifest, normalManifest, sourcesManifest
+	}
 }
 
 artifacts {
