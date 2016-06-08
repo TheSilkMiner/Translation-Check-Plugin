@@ -12,7 +12,7 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'idea'
-    id 'checkstyle'
+    //id 'checkstyle'
     id 'maven'
     id 'groovy'
     id 'java-gradle-plugin'
@@ -37,7 +37,9 @@ repositories {
 //noinspection GroovyAssignabilityCheck,GroovyAssignabilityCheck
 configurations {
     shade
+	pack
     compile.extendsFrom shade
+	compile.extendsFrom pack
 }
 
 dependencies {
@@ -46,6 +48,7 @@ dependencies {
     compile gradleApi()
 	compile project(":SKL-Java-Interpreter")
 	shade project(":SKL-Java-Interpreter")
+	pack project(":SKL-Java-Interpreter")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -103,8 +106,10 @@ ext.sourcesManifest = manifest {
 	)
 }
 
-//noinspection GroovyAssignabilityCheck
+// sort of an hack but it works
+// this is the minimal jar...
 jar {
+	classifier = 'minimal'
     manifest {
         from runnableManifest, gitManifest, jarManifest, authorManifest, normalManifest
     }
@@ -121,6 +126,11 @@ shadowJar {
 //noinspection GroovyAssignabilityCheck
 build.dependsOn shadowJar
 
+// Hacky way to separate java and groovy sources but let them compile
+// anyway (thank you GroovyC because you can compile Java classes)
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDirs += ["src/main/java"]
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
@@ -129,8 +139,22 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 	}
 }
 
+// ... and this is the jar you should use.
+task normalJar(type: Jar, dependsOn: classes) {
+	manifest {
+        from runnableManifest, gitManifest, jarManifest, authorManifest, normalManifest
+    }
+	from sourceSets.main.output
+	configurations.pack.each { dependency ->
+		from(project.zipTree(dependency)){
+            exclude 'META-INF', 'META-INF/**'
+        }
+	}
+}
+
 artifacts {
     archives sourcesJar
+	archives normalJar
 }
 
 task wrapper (type: Wrapper) {

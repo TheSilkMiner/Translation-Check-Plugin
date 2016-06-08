@@ -22,8 +22,8 @@ class Validators {
             format : wrap(FormatValidator.class),
     ]
 
-    static String[] getAllValidators() {
-        return VALIDATORS.keySet().toArray(new String[0])
+    static List<String> getAllValidators() {
+        return VALIDATORS.keySet().toList()
     }
 
     static String getAllValidatorsAsString() {

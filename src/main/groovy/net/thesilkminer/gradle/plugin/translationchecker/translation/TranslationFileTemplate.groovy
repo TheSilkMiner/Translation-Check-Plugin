@@ -1,5 +1,6 @@
 package net.thesilkminer.gradle.plugin.translationchecker.translation
 
+import net.thesilkminer.gradle.plugin.translationchecker.NewLine
 import net.thesilkminer.gradle.plugin.translationchecker.validation.ValidationMessage
 import net.thesilkminer.gradle.plugin.translationchecker.validation.ValidationMessageAppender
 import net.thesilkminer.gradle.plugin.translationchecker.validation.Validator
@@ -31,7 +32,7 @@ class TranslationFileTemplate {
 
     public boolean dryRun = false
 
-    public String lineEnding = "\n"
+    public NewLine lineEnding = NewLine.LF
 
     private List<LineTemplate> templates = []
 
@@ -42,18 +43,12 @@ class TranslationFileTemplate {
 
     def parseTemplate(File file) {
         def state = new TemplateParseState(source : file.getAbsolutePath(), messages : validationMessages)
-        file.eachLine('UTF-8') {
-            String line = it // Needed because of IntelliJ compile-time error
-            templates += parseLine(state, line)
-        }
+        file.eachLine('UTF-8') { templates += parseLine(state, it) }
     }
 
     def parseTemplate(Reader file) {
         def state = new TemplateParseState(source : "<stream>", messages : validationMessages)
-        file.eachLine {
-            String line = it // Needed because of IntelliJ compile-time error
-            templates += parseLine(state, line)
-        }
+        file.eachLine { templates += parseLine(state, it) }
     }
 
     List<LineTemplate> parseLine(TemplateParseState state, String line) {
@@ -96,7 +91,6 @@ class TranslationFileTemplate {
             ValidationMessageAppender appender = { int column, String message ->
                 validationMessages << new ValidationMessage(source : source, key : key, column : column, message : message)
             }
-
             validators*.validateTranslation(key, value, appender)
         }
     }
@@ -104,7 +98,7 @@ class TranslationFileTemplate {
     def fillFromTemplate(BufferedWriter output, Map<String, String> translations) {
         templates.each {
             output.write(it.fill(translations))
-            output.write(lineEnding)
+            output.write(lineEnding.value)
         }
     }
 

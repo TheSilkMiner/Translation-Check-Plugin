@@ -1,0 +1,22 @@
+<!DOCTYPE skd http://openmods.info/thirdyparty/thesilkminer/translationchecker/database.skd>
+<SKD version 0.2>
+
+<task id="0">
+	<properties type="internal">
+		<modid value="§MODID§" optional="true" />
+		<langdir value="§LANGDIR§" optional="true" />
+		<templatefilename value="en_US.lang" />
+		<excludedfilenames>
+		</excludedfilenames>
+		<needstranslationmark value="## NEEDS TRANSLATION ##" />
+		<enabledvalidators>
+			<validator name="non_empty" />
+			<validator name="unused" />
+			<validator name="duplicate" />
+			<validator name="mc_format" />
+			<validator name="format" />
+		</enabledvalidators>
+		<dryrun value="false" />
+		<lineending value="LF" />
+	</properties>
+</task>

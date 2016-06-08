@@ -1,0 +1,22 @@
+<!DOCTYPE skd http://openmods.info/thirdyparty/thesilkminer/translationchecker/database.skd>
+<SKD version 0.2>
+
+<task id="0">
+	<properties type="internal">
+		<modid value="Translation-Check-Plugin" optional="true" />
+		<langdir value="" optional="true" />
+		<templatefilename value="messages.properties" />
+		<excludedfilenames>
+			<file name="messages_ru.properties" />
+		</excludedfilenames>
+		<needstranslationmark value="## NEEDS TRANSLATION" />
+		<enabledvalidators>
+			<validator name="non_empty" />
+			<validator name="unused" />
+			<validator name="duplicate" />
+			<validator name="format" />
+		</enabledvalidators>
+		<dryrun value="false" />
+		<lineending value="CR" />
+	</properties>
+</task>

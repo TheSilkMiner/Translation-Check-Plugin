@@ -1,14 +1,17 @@
 # CHANGELOG
 
 ## Index
+- 2.x
+  - [2.0](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#2.0) (Development)
 - 1.x
-  - [1.2](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.2) (Development)
   - [1.1](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.1)
   - [1.0](https://github.com/TheSilkMiner/Translation-Check-Plugin/blob/master/CHANGELOG.md#1.0)
 
-## 1.2
+## 2.0
 
 * TheSilkMiner: Add SKL Interpreter to project
+* TheSilkMiner: Update to Java 8
+* TheSilkMiner: Add SKD-based task description and remove old properties
 
 ## 1.1
 
